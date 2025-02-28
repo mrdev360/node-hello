@@ -19,12 +19,12 @@ jobs:
         mkdir -p ~/.ssh
         echo "$VM_PRIVATE_KEY" > ~/.ssh/id_rsa  # Add private key from GitHub secrets
         chmod 600 ~/.ssh/id_rsa  # Secure the private key
-        ssh-keyscan -t rsa 51.79.106.176 >> ~/.ssh/known_hosts  # Add VM's SSH key to known hosts
+        ssh-keyscan -t rsa 51.79.106.176 >> ~/.ssh/known_hosts  # Replace with your actual VM's IP address
 
     - name: Deploy to VM
       run: |
         # SSH into the VM and deploy the app
-        ssh -o StrictHostKeyChecking=no user@your-vm-ip "
+        ssh -o StrictHostKeyChecking=no nodetestcustomde@51.79.106.176 "
           cd /path/to/your/app && \
           git pull origin main && \
           npm install && \
