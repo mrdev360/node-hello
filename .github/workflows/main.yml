@@ -26,7 +26,7 @@ jobs:
     - name: Test SSH Connection
       run: |
         # Test SSH connection to the VM to ensure the connection works before deployment
-        ssh -o StrictHostKeyChecking=no nodetestcustomde@51.79.106.176 "echo SSH connection successful!"
+        ssh -o StrictHostKeyChecking=no nodetestcustomde@54.39.100.44 "echo SSH connection successful!"
 
     - name: Deploy to VM
       run: |
