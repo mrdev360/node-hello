@@ -1,0 +1,28 @@
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup SSH and deploy app
+      run: |
+        sudo apt-get update
+        sudo apt-get install sshpass -y
+
+        # Set variables for SSH login
+        export SSH_USERNAME="nodetestcustomde"  # Replace with your VM's username
+        export SSH_PASSWORD="${{ VM_PASSWORD }}"  # Secret to store password
+        export SERVER_IP="51.79.106.176"  # Replace with your VM's IP address
+
+        # SSH into the VM and deploy the app
+        sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USERNAME@$SERVER_IP "
+          cd /path/to/your/app && \
+          git pull origin main && \
+          npm install && \
+          npm run build && \
+          pm2 restart your-app || pm2 start npm --name 'your-app' -- run start
+        "
+      env:
+        VM_PASSWORD: ${{ VM_PASSWORD }}
