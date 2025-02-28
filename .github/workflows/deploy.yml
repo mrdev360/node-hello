@@ -27,7 +27,7 @@ jobs:
           # Test SSH connection by running a simple command on the VM
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@your-vm-ip 'hostname'
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # Referencing the secret
 
       - name: Deploy to VM via SSH
         run: |
@@ -52,52 +52,4 @@ jobs:
             pm2 restart your-app || pm2 start app.js --name "your-app"  # Restart or start the app with PM2
           EOF
         env:
-          SSH_PRIVATE_KEY: ${{ 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 }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # Referencing the secret
