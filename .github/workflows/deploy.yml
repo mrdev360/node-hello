@@ -26,19 +26,23 @@ jobs:
         run: |
           # Create an SSH directory for the runner
           mkdir -p ~/.ssh
+          
           # Add the SSH private key from GitHub Secrets
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          
           # Set the correct permissions on the private key
           chmod 600 ~/.ssh/id_rsa
+          
           # Disable strict host key checking (optional, but can be useful for first-time connections)
           echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
           
           # SSH into the VM and deploy the app
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa username@your-vm-ip 'bash -s' << 'EOF'
+          ssh -i ~/.ssh/id_rsa ubuntu@192.168.1.100 'bash -s' << 'EOF'
             cd /path/to/your/app || exit
             git pull origin main || exit  # Pull the latest code from GitHub
             npm install || exit  # Install dependencies
             nvm use 16 || exit  # Use the correct Node.js version (if you need to)
             pm2 restart your-app || pm2 start app.js --name "your-app"  # Restart or start the app with PM2
           EOF
-
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # Use the SSH private key secret
