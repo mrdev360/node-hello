@@ -1,0 +1,26 @@
+name: Deploy to VM
+
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow on push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Use an Ubuntu runner
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "$VM_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa  # Secure the private key
+        ssh-keyscan -t rsa 51.79.106.176 >> ~/.ssh/known_hosts  # Add your VM's SSH key to known hosts
+
+    - name: Deploy to VM
+      run: |
+        # Replace 'your-user' with your actual username and 51.79.106.176 with your actual VM IP
+        ssh -o StrictHostKeyChecking=no nodetestcustomde@51.79.106.176 "cd /path/to/your/app && git pull origin main && npm install && npm run build && pm2 restart your-app"
