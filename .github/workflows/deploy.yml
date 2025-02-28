@@ -1,55 +1,38 @@
-name: Deploy Node.js App to VM
+name: Deploy App
 
+# Trigger the workflow on push to the main branch
 on:
   push:
     branches:
-      - main  # Trigger the workflow on push to the 'main' branch
+      - main  # or use the branch you're deploying from
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
-    
+    runs-on: ubuntu-latest  # Use the latest Ubuntu version for the runner
+
     steps:
+      # Step 1: Checkout the code
       - name: Checkout code
-        uses: actions/checkout@v2  # Checkout the repository code
-      
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Node.js (Example for a Node.js app)
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'  # Specify the Node.js version you need
+          node-version: '14'  # Specify the Node.js version you need
 
+      # Step 3: Install dependencies
       - name: Install dependencies
-        run: |
-          npm install  # Install all npm dependencies
+        run: npm install
 
-      - name: Test SSH Connection
-        run: |
-          # Test SSH connection by running a simple command on the VM
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@your-vm-ip 'hostname'
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # Referencing the secret
+      # Step 4: Run tests (optional)
+      - name: Run tests
+        run: npm test
 
-      - name: Deploy to VM via SSH
-        run: |
-          # Create an SSH directory for the runner
-          mkdir -p ~/.ssh
-          
-          # Add the SSH private key from GitHub Secrets
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          
-          # Set the correct permissions on the private key
-          chmod 600 ~/.ssh/id_rsa
-          
-          # Disable strict host key checking (optional, but can be useful for first-time connections)
-          echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
-          
-          # SSH into the VM and deploy the app
-          ssh -i ~/.ssh/id_rsa ubuntu@your-vm-ip 'bash -s' << 'EOF'
-            cd /path/to/your/app || exit
-            git pull origin main || exit  # Pull the latest code from GitHub
-            npm install || exit  # Install dependencies
-            nvm use 16 || exit  # Use the correct Node.js version (if you need to)
-            pm2 restart your-app || pm2 start app.js --name "your-app"  # Restart or start the app with PM2
-          EOF
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # Referencing the secret
+      # Step 5: Deploy to your platform (example for deploying to Heroku)
+      - name: Deploy to Heroku
+        uses: akshnz/heroku-deploy-action@v1
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          app_name: your-heroku-app-name
+          branch: main  # Specify the branch to deploy from
