@@ -1,0 +1,44 @@
+name: Deploy Node.js App to VM
+
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow on push to the 'main' branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2  # Checkout the repository code
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  # Specify the Node.js version you need
+
+      - name: Install dependencies
+        run: |
+          npm install  # Install all npm dependencies
+
+      - name: Deploy to VM via SSH
+        run: |
+          # Create an SSH directory for the runner
+          mkdir -p ~/.ssh
+          # Add the SSH private key from GitHub Secrets
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          # Set the correct permissions on the private key
+          chmod 600 ~/.ssh/id_rsa
+          # Disable strict host key checking (optional, but can be useful for first-time connections)
+          echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
+          
+          # SSH into the VM and deploy the app
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa username@your-vm-ip 'bash -s' << 'EOF'
+            cd /path/to/your/app || exit
+            git pull origin main || exit  # Pull the latest code from GitHub
+            npm install || exit  # Install dependencies
+            nvm use 16 || exit  # Use the correct Node.js version (if you need to)
+            pm2 restart your-app || pm2 start app.js --name "your-app"  # Restart or start the app with PM2
+          EOF
+
