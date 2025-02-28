@@ -19,7 +19,7 @@ jobs:
         mkdir -p ~/.ssh
         echo "$VM_PRIVATE_KEY" > ~/.ssh/id_rsa  # Add private key from GitHub secrets
         chmod 600 ~/.ssh/id_rsa  # Secure the private key
-        ssh-keyscan -t rsa your-vm-ip >> ~/.ssh/known_hosts  # Add VM's SSH key to known hosts
+        ssh-keyscan -t rsa nodetestcustomde@51.79.106.176 >> ~/.ssh/known_hosts  # Add VM's SSH key to known hosts
 
     - name: Deploy to VM
       run: |
